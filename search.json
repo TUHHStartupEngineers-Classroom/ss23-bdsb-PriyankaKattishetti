@@ -1,10 +1,17 @@
 [
   {
-    "objectID": "content/03_other/06_links.html",
-    "href": "content/03_other/06_links.html",
-    "title": "Links",
+    "objectID": "content/01_journal/01_tidyverse.html",
+    "href": "content/01_journal/01_tidyverse.html",
+    "title": "MyLabJournal",
     "section": "",
-    "text": "R is a free open-source programming language that can be used for statistical analysis, data-simulation, graphing, and lots of other stuff. Another free program is R-studio, that provides a nice graphic interface for R. Download R first, then download R-studio. Both can run on PCs, Macs or Linux. Students will be learning R in the stats labs using the lab manual .\n\n\n\n\nGoogle is great, Google your problem\nStackoverflow is great, google will often take you there because someone has already asked your question, and someone else has answered, usually many people have answered your question many ways."
+    "text": "1 Setting up the environment and Basic R coding\nLast compiled: 2023-05-23\n\nChapter 1 : Done\n\ncalc_EOQ <- function(D = 1000) {\n  K <- 5\n  h <- 0.25\n  Q <- sqrt(2*D*K/h)\n  Q\n}\n\ncalc_EOQ()\n\n#> [1] 200\n\n\n\n\n\n2 First Assignment : Bike Sales\n\n#importing packages\nlibrary(tidyverse)\nlibrary(readxl)\nlibrary(lubridate)\nlibrary(writexl)\n#reading files\nbikes_tbl <- read_excel(\"C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/bikes.xlsx\")\norderlines_tbl <- read_excel(\"C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/orderlines.xlsx\")\nbikeshops_tbl  <- read_excel(\"C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/bikeshops.xlsx\")\n#joining the tabels\nbike_orderlines_joined_tbl <- orderlines_tbl %>%\n  left_join(bikes_tbl, by = c(\"product.id\" = \"bike.id\")) %>%\n  left_join(bikeshops_tbl, by = c(\"customer.id\" = \"bikeshop.id\"))\nglimpse(bike_orderlines_joined_tbl)\n\n#> Rows: 15,644\n#> Columns: 19\n#> $ ...1           <chr> \"1\", \"2\", \"3\", \"4\", \"5\", \"6\", \"7\", \"8\", \"9\", \"10\", \"11\"…\n#> $ order.id       <dbl> 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7…\n#> $ order.line     <dbl> 1, 2, 1, 2, 1, 2, 3, 4, 5, 1, 1, 2, 3, 4, 1, 2, 3, 4, 1…\n#> $ order.date     <dttm> 2015-01-07, 2015-01-07, 2015-01-10, 2015-01-10, 2015-0…\n#> $ customer.id    <dbl> 2, 2, 10, 10, 6, 6, 6, 6, 6, 22, 8, 8, 8, 8, 16, 16, 16…\n#> $ product.id     <dbl> 2681, 2411, 2629, 2137, 2367, 1973, 2422, 2655, 2247, 2…\n#> $ quantity       <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1…\n#> $ model          <chr> \"Spectral CF 7 WMN\", \"Ultimate CF SLX Disc 8.0 ETAP\", \"…\n#> $ model.year     <dbl> 2021, 2020, 2021, 2019, 2020, 2020, 2020, 2021, 2020, 2…\n#> $ frame.material <chr> \"carbon\", \"carbon\", \"carbon\", \"carbon\", \"aluminium\", \"c…\n#> $ weight         <dbl> 13.80, 7.44, 14.06, 8.80, 11.50, 8.80, 8.20, 8.85, 14.4…\n#> $ price          <dbl> 3119, 5359, 2729, 1749, 1219, 1359, 2529, 1559, 3899, 6…\n#> $ category       <chr> \"Mountain - Trail - Spectral\", \"Road - Race - Ultimate\"…\n#> $ gender         <chr> \"female\", \"unisex\", \"unisex\", \"unisex\", \"unisex\", \"unis…\n#> $ url            <chr> \"https://www.canyon.com/en-de/mountain-bikes/trail-bike…\n#> $ name           <chr> \"AlexandeRad\", \"AlexandeRad\", \"WITT-RAD\", \"WITT-RAD\", \"…\n#> $ location       <chr> \"Hamburg, Hamburg\", \"Hamburg, Hamburg\", \"Bremen, Bremen…\n#> $ lat            <dbl> 53.57532, 53.57532, 53.07379, 53.07379, 48.78234, 48.78…\n#> $ lng            <dbl> 10.015340, 10.015340, 8.826754, 8.826754, 9.180819, 9.1…\n\n# separating the location to state and city and calculating total price\n\nbike_orderlines_wrangled_tbl <- bike_orderlines_joined_tbl %>%\n  separate(col    = location,\n           into   = c(\"city\", \"state\"),\n           sep    = \", \") %>%\n  mutate(total.price = price * quantity) %>%\n  select(-...1, -gender) %>%\n  select(-ends_with(\".id\")) %>%\n  bind_cols(bike_orderlines_joined_tbl %>% select(order.id)) %>%\n  select(order.id, contains(\"order\"), contains(\"model\"), contains(\"location\"),\n         price, quantity, total.price,\n         everything()) %>%\n  set_names(names(.) %>% str_replace_all(\"\\\\.\", \"_\"))\n\nglimpse(bike_orderlines_wrangled_tbl)\n\n#> Rows: 15,644\n#> Columns: 17\n#> $ order_id       <dbl> 1, 1, 2, 2, 3, 3, 3, 3, 3, 4, 5, 5, 5, 5, 6, 6, 6, 6, 7…\n#> $ order_line     <dbl> 1, 2, 1, 2, 1, 2, 3, 4, 5, 1, 1, 2, 3, 4, 1, 2, 3, 4, 1…\n#> $ order_date     <dttm> 2015-01-07, 2015-01-07, 2015-01-10, 2015-01-10, 2015-0…\n#> $ model          <chr> \"Spectral CF 7 WMN\", \"Ultimate CF SLX Disc 8.0 ETAP\", \"…\n#> $ model_year     <dbl> 2021, 2020, 2021, 2019, 2020, 2020, 2020, 2021, 2020, 2…\n#> $ price          <dbl> 3119, 5359, 2729, 1749, 1219, 1359, 2529, 1559, 3899, 6…\n#> $ quantity       <dbl> 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1…\n#> $ total_price    <dbl> 3119, 5359, 2729, 1749, 1219, 1359, 2529, 1559, 3899, 6…\n#> $ frame_material <chr> \"carbon\", \"carbon\", \"carbon\", \"carbon\", \"aluminium\", \"c…\n#> $ weight         <dbl> 13.80, 7.44, 14.06, 8.80, 11.50, 8.80, 8.20, 8.85, 14.4…\n#> $ category       <chr> \"Mountain - Trail - Spectral\", \"Road - Race - Ultimate\"…\n#> $ url            <chr> \"https://www.canyon.com/en-de/mountain-bikes/trail-bike…\n#> $ name           <chr> \"AlexandeRad\", \"AlexandeRad\", \"WITT-RAD\", \"WITT-RAD\", \"…\n#> $ city           <chr> \"Hamburg\", \"Hamburg\", \"Bremen\", \"Bremen\", \"Stuttgart\", …\n#> $ state          <chr> \"Hamburg\", \"Hamburg\", \"Bremen\", \"Bremen\", \"Baden-Württe…\n#> $ lat            <dbl> 53.57532, 53.57532, 53.07379, 53.07379, 48.78234, 48.78…\n#> $ lng            <dbl> 10.015340, 10.015340, 8.826754, 8.826754, 9.180819, 9.1…\n\n#sales by state  - Bar plot\n\nsales_by_state_tbl <- bike_orderlines_wrangled_tbl %>%\n  select(state, total_price) %>%\n  group_by(state) %>% \n  summarize(sales = sum(total_price)) %>%\n  mutate(sales_text = scales::dollar(sales, big.mark = \".\", \n                                     decimal.mark = \",\", \n                                     prefix = \"\", \n                                     suffix = \" €\"))\nsales_by_state_tbl\n\n\n\n  \n\n\n# Step 2 - Visualize\n\nsales_by_state_tbl %>%\n  ggplot(aes(x = state, y = sales)) +\n  geom_col(fill = \"#2DC6D6\") + # Use geom_col for a bar plot\n  geom_label(aes(label = sales_text)) + # Adding labels to the bars\n  geom_smooth(method = \"lm\", se = FALSE) + # Adding a trendline\n  scale_y_continuous(labels = scales::dollar_format(big.mark = \".\", \n                                                    decimal.mark = \",\", \n                                                    prefix = \"\", \n                                                    suffix = \" €\")) +\n  labs(\n    title    = \"Revenue by state\",\n    subtitle = \"Upward Trend\",\n    x = \"\", # Override defaults for x and y\n    y = \"Revenue\"\n  )+ theme(axis.text.x = element_text(angle = 45, hjust = 1))\n\n\n\n\n\n\n\n# sales by year and location - 12 plots\n\nsales_by_year_state_tbl <- bike_orderlines_wrangled_tbl %>%\n  \n  # Select columns and add a year\n  select(order_date, total_price, state) %>%\n  mutate(year = year(order_date)) %>%\n  \n  # Group by and summarize year and main catgegory\n  group_by(year, state) %>%\n  summarise(sales = sum(total_price)) %>%\n  ungroup() %>%\n  \n  # Format $ Text\n  mutate(sales_text = scales::dollar(sales, big.mark = \".\", \n                                     decimal.mark = \",\", \n                                     prefix = \"\", \n                                     suffix = \" €\"))\n\nsales_by_year_state_tbl \n\n\n\n  \n\n\n# Step 2 - Visualize\nsales_by_year_state_tbl %>%\n  \n  # Set up x, y, fill\n  ggplot(aes(x = year, y = sales, fill = state)) +\n  \n  # Geometries\n  geom_col() + # Run up to here to get a stacked bar plot\n  \n  # Facet\n  facet_wrap(~ state) +\n  \n  # Formatting\n  scale_y_continuous(labels = scales::dollar_format(big.mark = \".\", \n                                                    decimal.mark = \",\", \n                                                    prefix = \"\", \n                                                    suffix = \" €\")) +\n  labs(\n    title = \"Revenue by year and state\",\n    fill = \"State\" # Changes the legend name\n  )"
+  },
+  {
+    "objectID": "content/01_journal/02_data_acquisition.html",
+    "href": "content/01_journal/02_data_acquisition.html",
+    "title": "Data Acquisition",
+    "section": "",
+    "text": "Note\n\n\n\nYou can delete everything in here and start fresh."
   },
   {
     "objectID": "content/01_journal/03_data_wrangling.html",
@@ -21,32 +28,18 @@
     "text": "Note\n\n\n\nYou can delete everything in here and start fresh."
   },
   {
-    "objectID": "content/01_journal/01_tidyverse.html",
-    "href": "content/01_journal/01_tidyverse.html",
-    "title": "Tidyverse",
-    "section": "",
-    "text": "Note\n\n\n\nYou can delete everything in here and start fresh.\nThis is a .qmd file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header.\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
-  },
-  {
-    "objectID": "content/01_journal/01_tidyverse.html#header-2",
-    "href": "content/01_journal/01_tidyverse.html#header-2",
-    "title": "Tidyverse",
-    "section": "\n2.1 Header 2",
-    "text": "2.1 Header 2\nHeader 3\nHeader 4\nHeader 5\nHeader 6"
-  },
-  {
-    "objectID": "content/01_journal/02_data_acquisition.html",
-    "href": "content/01_journal/02_data_acquisition.html",
-    "title": "Data Acquisition",
-    "section": "",
-    "text": "Note\n\n\n\nYou can delete everything in here and start fresh."
-  },
-  {
     "objectID": "content/02_notes/05_class_notes.html",
     "href": "content/02_notes/05_class_notes.html",
     "title": "Class Notes",
     "section": "",
     "text": "IMPORTANT: You can delete everything in here and start fresh. You might want to start by not deleting anything above this line until you know what that stuff is doing.\nThis is an .qmd file. It is plain text with special features. Any time you write just like this, it will be compiled to normal text in the website. If you put a # in front of your text, it will create a top level-header."
+  },
+  {
+    "objectID": "content/03_other/06_links.html",
+    "href": "content/03_other/06_links.html",
+    "title": "Links",
+    "section": "",
+    "text": "R is a free open-source programming language that can be used for statistical analysis, data-simulation, graphing, and lots of other stuff. Another free program is R-studio, that provides a nice graphic interface for R. Download R first, then download R-studio. Both can run on PCs, Macs or Linux. Students will be learning R in the stats labs using the lab manual .\n\n\n\n\nGoogle is great, Google your problem\nStackoverflow is great, google will often take you there because someone has already asked your question, and someone else has answered, usually many people have answered your question many ways."
   },
   {
     "objectID": "index.html",
