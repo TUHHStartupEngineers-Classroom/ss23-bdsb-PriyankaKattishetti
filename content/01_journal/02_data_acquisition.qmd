@@ -1,7 +1,7 @@
 ---
 author : Priyanka Kattishetti
 title: "02 Data Acqusition"
-date: "2023-05"
+date: "2023-05-23"
 output:
   html_document:
     toc: true
