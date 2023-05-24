@@ -42,9 +42,9 @@ library(readxl)
 library(lubridate)
 library("writexl")
 #reading files
-bikes_tbl <- read_excel(path ="C:/Users/swapn/Documents/GitHub/ss23-bdsb-swapniljain1121/ds_data/01_bike_sales/01_raw_data/bikes.xlsx")
-orderlines_tbl <- read_excel("C:/Users/swapn/Documents/GitHub/ss23-bdsb-swapniljain1121/ds_data/01_bike_sales/01_raw_data/orderlines.xlsx")
-bikeshops_tbl  <- read_excel("C:/Users/swapn/Documents/GitHub/ss23-bdsb-swapniljain1121/ds_data/01_bike_sales/01_raw_data/bikeshops.xlsx")
+bikes_tbl <- read_excel(path ="C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/bikes.xlsx")
+orderlines_tbl <- read_excel("C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/orderlines.xlsx")
+bikeshops_tbl  <- read_excel("C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/bikeshops.xlsx")
 #joining the tabels
 bike_orderlines_joined_tbl <- orderlines_tbl %>%
   left_join(bikes_tbl, by = c("product.id" = "bike.id")) %>%
