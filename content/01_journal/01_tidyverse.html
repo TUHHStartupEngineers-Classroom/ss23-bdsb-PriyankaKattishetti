@@ -264,20 +264,20 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 </section>
 <section id="first-assignment-bike-sales" class="level1" data-number="2">
 <h1 data-number="2"><span class="header-section-number">2</span> First Assignment : Bike Sales</h1>
-<div class="cell" data-hash="01_tidyverse_cache/html/plot_d226530f06c363332db6a9bc36673e55">
+<div class="cell" data-hash="01_tidyverse_cache/html/plot_ca82efd5819dae6099e558c2370b90aa">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">#importing packages</span></span>
 <span id="cb3-2"><a href="#cb3-2"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb3-3"><a href="#cb3-3"></a><span class="fu">library</span>(readxl)</span>
 <span id="cb3-4"><a href="#cb3-4"></a><span class="fu">library</span>(lubridate)</span>
 <span id="cb3-5"><a href="#cb3-5"></a><span class="fu">library</span>(<span class="st">"writexl"</span>)</span>
 <span id="cb3-6"><a href="#cb3-6"></a><span class="co">#reading files</span></span>
-<span id="cb3-7"><a href="#cb3-7"></a>bikes_tbl <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="at">path =</span><span class="st">"C:/Users/swapn/Documents/GitHub/ss23-bdsb-swapniljain1121/ds_data/01_bike_sales/01_raw_data/bikes.xlsx"</span>)</span>
-<span id="cb3-8"><a href="#cb3-8"></a>orderlines_tbl <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"C:/Users/swapn/Documents/GitHub/ss23-bdsb-swapniljain1121/ds_data/01_bike_sales/01_raw_data/orderlines.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-7"><a href="#cb3-7"></a>bikes_tbl <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="at">path =</span><span class="st">"C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/bikes.xlsx"</span>)</span>
+<span id="cb3-8"><a href="#cb3-8"></a>orderlines_tbl <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/orderlines.xlsx"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>#&gt; New names:
 #&gt; • `` -&gt; `...1`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>bikeshops_tbl  <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"C:/Users/swapn/Documents/GitHub/ss23-bdsb-swapniljain1121/ds_data/01_bike_sales/01_raw_data/bikeshops.xlsx"</span>)</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>bikeshops_tbl  <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"C:/Users/lenovo/Desktop/BM-SS23/ss23-bdsb-PriyankaKattishetti/ds_data/01_bike_sales/01_raw_data/bikeshops.xlsx"</span>)</span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="co">#joining the tabels</span></span>
 <span id="cb5-3"><a href="#cb5-3"></a>bike_orderlines_joined_tbl <span class="ot">&lt;-</span> orderlines_tbl <span class="sc">%&gt;%</span></span>
 <span id="cb5-4"><a href="#cb5-4"></a>  <span class="fu">left_join</span>(bikes_tbl, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"product.id"</span> <span class="ot">=</span> <span class="st">"bike.id"</span>)) <span class="sc">%&gt;%</span></span>
@@ -380,7 +380,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
 <span id="cb10-16"><a href="#cb10-16"></a>    <span class="at">y =</span> <span class="st">"Revenue"</span></span>
 <span id="cb10-17"><a href="#cb10-17"></a>  )<span class="sc">+</span> <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>#&gt; `geom_smooth()` using formula = 'y ~ x'</code></pre>
+<pre><code>#&gt; `geom_smooth()` using formula 'y ~ x'</code></pre>
 </div>
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
@@ -703,7 +703,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
-<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","loop":true,"selector":".lightbox","openEffect":"zoom","closeEffect":"zoom"});</script>
+<script>var lightboxQuarto = GLightbox({"descPosition":"bottom","loop":true,"closeEffect":"zoom","selector":".lightbox","openEffect":"zoom"});</script>
 
 
 
