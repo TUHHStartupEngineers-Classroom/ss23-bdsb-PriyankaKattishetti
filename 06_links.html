@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html class="staticrypt-html">
+    <head>
+        <meta charset="utf-8" />
+        <title>Protected Page</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <!-- do not cache this page -->
+        <meta http-equiv="cache-control" content="max-age=0" />
+        <meta http-equiv="cache-control" content="no-cache" />
+        <meta http-equiv="expires" content="0" />
+        <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+        <meta http-equiv="pragma" content="no-cache" />
+
+        <style>
+            .staticrypt-hr {
+                margin-top: 20px;
+                margin-bottom: 20px;
+                border: 0;
+                border-top: 1px solid #eee;
+            }
+
+            .staticrypt-page {
+                width: 360px;
+                padding: 8% 0 0;
+                margin: auto;
+                box-sizing: border-box;
+            }
+
+            .staticrypt-form {
+                position: relative;
+                z-index: 1;
+                background: #ffffff;
+                max-width: 360px;
+                margin: 0 auto 100px;
+                padding: 45px;
+                text-align: center;
+                box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+            }
+
+            .staticrypt-form input[type="password"] {
+                outline: 0;
+                background: #f2f2f2;
+                width: 100%;
+                border: 0;
+                margin: 0 0 15px;
+                padding: 15px;
+                box-sizing: border-box;
+                font-size: 14px;
+            }
+
+            .staticrypt-form .staticrypt-decrypt-button {
+                text-transform: uppercase;
+                outline: 0;
+                background: #006a81;
+                width: 100%;
+                border: 0;
+                padding: 15px;
+                color: #ffffff;
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+            .staticrypt-form .staticrypt-decrypt-button:hover,
+            .staticrypt-form .staticrypt-decrypt-button:active,
+            .staticrypt-form .staticrypt-decrypt-button:focus {
+                background: #006a81;
+                filter: brightness(92%);
+            }
+
+            .staticrypt-html {
+                height: 100%;
+            }
+
+            .staticrypt-body {
+                height: 100%;
+                margin: 0;
+            }
+
+            .staticrypt-content {
+                height: 100%;
+                margin-bottom: 1em;
+                background: #00C1D4;
+                font-family: "Arial", sans-serif;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
+            }
+
+            .staticrypt-instructions {
+                margin-top: -1em;
+                margin-bottom: 1em;
+            }
+
+            .staticrypt-title {
+                font-size: 1.5em;
+            }
+
+            label.staticrypt-remember {
+                display: flex;
+                align-items: center;
+                margin-bottom: 1em;
+            }
+
+            .staticrypt-remember input[type="checkbox"] {
+                transform: scale(1.5);
+                margin-right: 1em;
+            }
+
+            .hidden {
+                display: none !important;
+            }
+
+            .staticrypt-spinner-container {
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .staticrypt-spinner {
+                display: inline-block;
+                width: 2rem;
+                height: 2rem;
+                vertical-align: text-bottom;
+                border: 0.25em solid gray;
+                border-right-color: transparent;
+                border-radius: 50%;
+                -webkit-animation: spinner-border 0.75s linear infinite;
+                animation: spinner-border 0.75s linear infinite;
+                animation-duration: 0.75s;
+                animation-timing-function: linear;
+                animation-delay: 0s;
+                animation-iteration-count: infinite;
+                animation-direction: normal;
+                animation-fill-mode: none;
+                animation-play-state: running;
+                animation-name: spinner-border;
+            }
+
+            @keyframes spinner-border {
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+
+    <body class="staticrypt-body">
+        <div id="staticrypt_loading" class="staticrypt-spinner-container">
+            <div class="staticrypt-spinner"></div>
+        </div>
+
+        <div id="staticrypt_content" class="staticrypt-content hidden">
+            <div class="staticrypt-page">
+                <div class="staticrypt-form">
+                    <div class="staticrypt-instructions">
+                        <p class="staticrypt-title">Protected Page</p>
+                        <p></p>
+                    </div>
+
+                    <hr class="staticrypt-hr" />
+
+                    <form id="staticrypt-form" action="#" method="post">
+                        <input
+                            id="staticrypt-password"
+                            type="password"
+                            name="password"
+                            placeholder="Password"
+                            autofocus
+                        />
+
+                        <label id="staticrypt-remember-label" class="staticrypt-remember hidden">
+                            <input id="staticrypt-remember" type="checkbox" name="remember" />
+                            Remember me
+                        </label>
+
+                        <input type="submit" class="staticrypt-decrypt-button" value="DECRYPT" />
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // these variables will be filled when generating the file - the template format is 'variable_name'
+            const staticryptInitiator = ((function(){
+  const exports = {};
+  const cryptoEngine = ((function(){
+  const exports = {};
+  const { subtle } = crypto;
+
+const IV_BITS = 16 * 8;
+const HEX_BITS = 4;
+const ENCRYPTION_ALGO = "AES-CBC";
+
+/**
+ * Translates between utf8 encoded hexadecimal strings
+ * and Uint8Array bytes.
+ */
+const HexEncoder = {
+    /**
+     * hex string -> bytes
+     * @param {string} hexString
+     * @returns {Uint8Array}
+     */
+    parse: function (hexString) {
+        if (hexString.length % 2 !== 0) throw "Invalid hexString";
+        const arrayBuffer = new Uint8Array(hexString.length / 2);
+
+        for (let i = 0; i < hexString.length; i += 2) {
+            const byteValue = parseInt(hexString.substring(i, i + 2), 16);
+            if (isNaN(byteValue)) {
+                throw "Invalid hexString";
+            }
+            arrayBuffer[i / 2] = byteValue;
+        }
+        return arrayBuffer;
+    },
+
+    /**
+     * bytes -> hex string
+     * @param {Uint8Array} bytes
+     * @returns {string}
+     */
+    stringify: function (bytes) {
+        const hexBytes = [];
+
+        for (let i = 0; i < bytes.length; ++i) {
+            let byteString = bytes[i].toString(16);
+            if (byteString.length < 2) {
+                byteString = "0" + byteString;
+            }
+            hexBytes.push(byteString);
+        }
+        return hexBytes.join("");
+    },
+};
+
+/**
+ * Translates between utf8 strings and Uint8Array bytes.
+ */
+const UTF8Encoder = {
+    parse: function (str) {
+        return new TextEncoder().encode(str);
+    },
+
+    stringify: function (bytes) {
+        return new TextDecoder().decode(bytes);
+    },
+};
+
+/**
+ * Salt and encrypt a msg with a password.
+ */
+async function encrypt(msg, hashedPassword) {
+    // Must be 16 bytes, unpredictable, and preferably cryptographically random. However, it need not be secret.
+    // https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/encrypt#parameters
+    const iv = crypto.getRandomValues(new Uint8Array(IV_BITS / 8));
+
+    const key = await subtle.importKey("raw", HexEncoder.parse(hashedPassword), ENCRYPTION_ALGO, false, ["encrypt"]);
+
+    const encrypted = await subtle.encrypt(
+        {
+            name: ENCRYPTION_ALGO,
+            iv: iv,
+        },
+        key,
+        UTF8Encoder.parse(msg)
+    );
+
+    // iv will be 32 hex characters, we prepend it to the ciphertext for use in decryption
+    return HexEncoder.stringify(iv) + HexEncoder.stringify(new Uint8Array(encrypted));
+}
+exports.encrypt = encrypt;
+
+/**
+ * Decrypt a salted msg using a password.
+ *
+ * @param {string} encryptedMsg
+ * @param {string} hashedPassword
+ * @returns {Promise<string>}
+ */
+async function decrypt(encryptedMsg, hashedPassword) {
+    const ivLength = IV_BITS / HEX_BITS;
+    const iv = HexEncoder.parse(encryptedMsg.substring(0, ivLength));
+    const encrypted = encryptedMsg.substring(ivLength);
+
+    const key = await subtle.importKey("raw", HexEncoder.parse(hashedPassword), ENCRYPTION_ALGO, false, ["decrypt"]);
+
+    const outBuffer = await subtle.decrypt(
+        {
+            name: ENCRYPTION_ALGO,
+            iv: iv,
+        },
+        key,
+        HexEncoder.parse(encrypted)
+    );
+
+    return UTF8Encoder.stringify(new Uint8Array(outBuffer));
+}
+exports.decrypt = decrypt;
+
+/**
+ * Salt and hash the password so it can be stored in localStorage without opening a password reuse vulnerability.
+ *
+ * @param {string} password
+ * @param {string} salt
+ * @returns {Promise<string>}
+ */
+async function hashPassword(password, salt) {
+    // we hash the password in multiple steps, each adding more iterations. This is because we used to allow less
+    // iterations, so for backward compatibility reasons, we need to support going from that to more iterations.
+    let hashedPassword = await hashLegacyRound(password, salt);
+
+    hashedPassword = await hashSecondRound(hashedPassword, salt);
+
+    return hashThirdRound(hashedPassword, salt);
+}
+exports.hashPassword = hashPassword;
+
+/**
+ * This hashes the password with 1k iterations. This is a low number, we need this function to support backwards
+ * compatibility.
+ *
+ * @param {string} password
+ * @param {string} salt
+ * @returns {Promise<string>}
+ */
+function hashLegacyRound(password, salt) {
+    return pbkdf2(password, salt, 1000, "SHA-1");
+}
+exports.hashLegacyRound = hashLegacyRound;
+
+/**
+ * Add a second round of iterations. This is because we used to use 1k, so for backwards compatibility with
+ * remember-me/autodecrypt links, we need to support going from that to more iterations.
+ *
+ * @param hashedPassword
+ * @param salt
+ * @returns {Promise<string>}
+ */
+function hashSecondRound(hashedPassword, salt) {
+    return pbkdf2(hashedPassword, salt, 14000, "SHA-256");
+}
+exports.hashSecondRound = hashSecondRound;
+
+/**
+ * Add a third round of iterations to bring total number to 600k. This is because we used to use 1k, then 15k, so for
+ * backwards compatibility with remember-me/autodecrypt links, we need to support going from that to more iterations.
+ *
+ * @param hashedPassword
+ * @param salt
+ * @returns {Promise<string>}
+ */
+function hashThirdRound(hashedPassword, salt) {
+    return pbkdf2(hashedPassword, salt, 585000, "SHA-256");
+}
+exports.hashThirdRound = hashThirdRound;
+
+/**
+ * Salt and hash the password so it can be stored in localStorage without opening a password reuse vulnerability.
+ *
+ * @param {string} password
+ * @param {string} salt
+ * @param {int} iterations
+ * @param {string} hashAlgorithm
+ * @returns {Promise<string>}
+ */
+async function pbkdf2(password, salt, iterations, hashAlgorithm) {
+    const key = await subtle.importKey("raw", UTF8Encoder.parse(password), "PBKDF2", false, ["deriveBits"]);
+
+    const keyBytes = await subtle.deriveBits(
+        {
+            name: "PBKDF2",
+            hash: hashAlgorithm,
+            iterations,
+            salt: UTF8Encoder.parse(salt),
+        },
+        key,
+        256
+    );
+
+    return HexEncoder.stringify(new Uint8Array(keyBytes));
+}
+
+function generateRandomSalt() {
+    const bytes = crypto.getRandomValues(new Uint8Array(128 / 8));
+
+    return HexEncoder.stringify(new Uint8Array(bytes));
+}
+exports.generateRandomSalt = generateRandomSalt;
+
+async function signMessage(hashedPassword, message) {
+    const key = await subtle.importKey(
+        "raw",
+        HexEncoder.parse(hashedPassword),
+        {
+            name: "HMAC",
+            hash: "SHA-256",
+        },
+        false,
+        ["sign"]
+    );
+    const signature = await subtle.sign("HMAC", key, UTF8Encoder.parse(message));
+
+    return HexEncoder.stringify(new Uint8Array(signature));
+}
+exports.signMessage = signMessage;
+
+function getRandomAlphanum() {
+    const possibleCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    let byteArray;
+    let parsedInt;
+
+    // Keep generating new random bytes until we get a value that falls
+    // within a range that can be evenly divided by possibleCharacters.length
+    do {
+        byteArray = crypto.getRandomValues(new Uint8Array(1));
+        // extract the lowest byte to get an int from 0 to 255 (probably unnecessary, since we're only generating 1 byte)
+        parsedInt = byteArray[0] & 0xff;
+    } while (parsedInt >= 256 - (256 % possibleCharacters.length));
+
+    // Take the modulo of the parsed integer to get a random number between 0 and totalLength - 1
+    const randomIndex = parsedInt % possibleCharacters.length;
+
+    return possibleCharacters[randomIndex];
+}
+
+/**
+ * Generate a random string of a given length.
+ *
+ * @param {int} length
+ * @returns {string}
+ */
+function generateRandomString(length) {
+    let randomString = "";
+
+    for (let i = 0; i < length; i++) {
+        randomString += getRandomAlphanum();
+    }
+
+    return randomString;
+}
+exports.generateRandomString = generateRandomString;
+
+  return exports;
+})());
+const codec = ((function(){
+  const exports = {};
+  /**
+ * Initialize the codec with the provided cryptoEngine - this return functions to encode and decode messages.
+ *
+ * @param cryptoEngine - the engine to use for encryption / decryption
+ */
+function init(cryptoEngine) {
+    const exports = {};
+
+    /**
+     * Top-level function for encoding a message.
+     * Includes password hashing, encryption, and signing.
+     *
+     * @param {string} msg
+     * @param {string} password
+     * @param {string} salt
+     *
+     * @returns {string} The encoded text
+     */
+    async function encode(msg, password, salt) {
+        const hashedPassword = await cryptoEngine.hashPassword(password, salt);
+
+        const encrypted = await cryptoEngine.encrypt(msg, hashedPassword);
+
+        // we use the hashed password in the HMAC because this is effectively what will be used a password (so we can store
+        // it in localStorage safely, we don't use the clear text password)
+        const hmac = await cryptoEngine.signMessage(hashedPassword, encrypted);
+
+        return hmac + encrypted;
+    }
+    exports.encode = encode;
+
+    /**
+     * Encode using a password that has already been hashed. This is useful to encode multiple messages in a row, that way
+     * we don't need to hash the password multiple times.
+     *
+     * @param {string} msg
+     * @param {string} hashedPassword
+     *
+     * @returns {string} The encoded text
+     */
+    async function encodeWithHashedPassword(msg, hashedPassword) {
+        const encrypted = await cryptoEngine.encrypt(msg, hashedPassword);
+
+        // we use the hashed password in the HMAC because this is effectively what will be used a password (so we can store
+        // it in localStorage safely, we don't use the clear text password)
+        const hmac = await cryptoEngine.signMessage(hashedPassword, encrypted);
+
+        return hmac + encrypted;
+    }
+    exports.encodeWithHashedPassword = encodeWithHashedPassword;
+
+    /**
+     * Top-level function for decoding a message.
+     * Includes signature check and decryption.
+     *
+     * @param {string} signedMsg
+     * @param {string} hashedPassword
+     * @param {string} salt
+     * @param {int} backwardCompatibleAttempt
+     * @param {string} originalPassword
+     *
+     * @returns {Object} {success: true, decoded: string} | {success: false, message: string}
+     */
+    async function decode(signedMsg, hashedPassword, salt, backwardCompatibleAttempt = 0, originalPassword = "") {
+        const encryptedHMAC = signedMsg.substring(0, 64);
+        const encryptedMsg = signedMsg.substring(64);
+        const decryptedHMAC = await cryptoEngine.signMessage(hashedPassword, encryptedMsg);
+
+        if (decryptedHMAC !== encryptedHMAC) {
+            // we have been raising the number of iterations in the hashing algorithm multiple times, so to support the old
+            // remember-me/autodecrypt links we need to try bringing the old hashes up to speed.
+            originalPassword = originalPassword || hashedPassword;
+            if (backwardCompatibleAttempt === 0) {
+                const updatedHashedPassword = await cryptoEngine.hashThirdRound(originalPassword, salt);
+
+                return decode(signedMsg, updatedHashedPassword, salt, backwardCompatibleAttempt + 1, originalPassword);
+            }
+            if (backwardCompatibleAttempt === 1) {
+                let updatedHashedPassword = await cryptoEngine.hashSecondRound(originalPassword, salt);
+                updatedHashedPassword = await cryptoEngine.hashThirdRound(updatedHashedPassword, salt);
+
+                return decode(signedMsg, updatedHashedPassword, salt, backwardCompatibleAttempt + 1, originalPassword);
+            }
+
+            return { success: false, message: "Signature mismatch" };
+        }
+
+        return {
+            success: true,
+            decoded: await cryptoEngine.decrypt(encryptedMsg, hashedPassword),
+        };
+    }
+    exports.decode = decode;
+
+    return exports;
+}
+exports.init = init;
+
+  return exports;
+})());
+const decode = codec.init(cryptoEngine).decode;
+
+/**
+ * Initialize the staticrypt module, that exposes functions callbable by the password_template.
+ *
+ * @param {{
+ *  staticryptEncryptedMsgUniqueVariableName: string,
+ *  isRememberEnabled: boolean,
+ *  rememberDurationInDays: number,
+ *  staticryptSaltUniqueVariableName: string,
+ * }} staticryptConfig - object of data that is stored on the password_template at encryption time.
+ *
+ * @param {{
+ *  rememberExpirationKey: string,
+ *  rememberPassphraseKey: string,
+ *  replaceHtmlCallback: function,
+ *  clearLocalStorageCallback: function,
+ * }} templateConfig - object of data that can be configured by a custom password_template.
+ */
+function init(staticryptConfig, templateConfig) {
+    const exports = {};
+
+    /**
+     * Decrypt our encrypted page, replace the whole HTML.
+     *
+     * @param {string} hashedPassword
+     * @returns {Promise<boolean>}
+     */
+    async function decryptAndReplaceHtml(hashedPassword) {
+        const { staticryptEncryptedMsgUniqueVariableName, staticryptSaltUniqueVariableName } = staticryptConfig;
+        const { replaceHtmlCallback } = templateConfig;
+
+        const result = await decode(
+            staticryptEncryptedMsgUniqueVariableName,
+            hashedPassword,
+            staticryptSaltUniqueVariableName
+        );
+        if (!result.success) {
+            return false;
+        }
+        const plainHTML = result.decoded;
+
+        // if the user configured a callback call it, otherwise just replace the whole HTML
+        if (typeof replaceHtmlCallback === "function") {
+            replaceHtmlCallback(plainHTML);
+        } else {
+            document.write(plainHTML);
+            document.close();
+        }
+
+        return true;
+    }
+
+    /**
+     * Attempt to decrypt the page and replace the whole HTML.
+     *
+     * @param {string} password
+     * @param {boolean} isRememberChecked
+     *
+     * @returns {Promise<{isSuccessful: boolean, hashedPassword?: string}>} - we return an object, so that if we want to
+     *   expose more information in the future we can do it without breaking the password_template
+     */
+    async function handleDecryptionOfPage(password, isRememberChecked) {
+        const { isRememberEnabled, rememberDurationInDays, staticryptSaltUniqueVariableName } = staticryptConfig;
+        const { rememberExpirationKey, rememberPassphraseKey } = templateConfig;
+
+        // decrypt and replace the whole page
+        const hashedPassword = await cryptoEngine.hashPassword(password, staticryptSaltUniqueVariableName);
+
+        const isDecryptionSuccessful = await decryptAndReplaceHtml(hashedPassword);
+
+        if (!isDecryptionSuccessful) {
+            return {
+                isSuccessful: false,
+                hashedPassword,
+            };
+        }
+
+        // remember the hashedPassword and set its expiration if necessary
+        if (isRememberEnabled && isRememberChecked) {
+            window.localStorage.setItem(rememberPassphraseKey, hashedPassword);
+
+            // set the expiration if the duration isn't 0 (meaning no expiration)
+            if (rememberDurationInDays > 0) {
+                window.localStorage.setItem(
+                    rememberExpirationKey,
+                    (new Date().getTime() + rememberDurationInDays * 24 * 60 * 60 * 1000).toString()
+                );
+            }
+        }
+
+        return {
+            isSuccessful: true,
+            hashedPassword,
+        };
+    }
+    exports.handleDecryptionOfPage = handleDecryptionOfPage;
+
+    /**
+     * Clear localstorage from staticrypt related values
+     */
+    function clearLocalStorage() {
+        const { clearLocalStorageCallback, rememberExpirationKey, rememberPassphraseKey } = templateConfig;
+
+        if (typeof clearLocalStorageCallback === "function") {
+            clearLocalStorageCallback();
+        } else {
+            localStorage.removeItem(rememberPassphraseKey);
+            localStorage.removeItem(rememberExpirationKey);
+        }
+    }
+
+    async function handleDecryptOnLoad() {
+        let isSuccessful = await decryptOnLoadFromUrl();
+
+        if (!isSuccessful) {
+            isSuccessful = await decryptOnLoadFromRememberMe();
+        }
+
+        return { isSuccessful };
+    }
+    exports.handleDecryptOnLoad = handleDecryptOnLoad;
+
+    /**
+     * Clear storage if we are logging out
+     *
+     * @returns {boolean} - whether we logged out
+     */
+    function logoutIfNeeded() {
+        const logoutKey = "staticrypt_logout";
+
+        // handle logout through query param
+        const queryParams = new URLSearchParams(window.location.search);
+        if (queryParams.has(logoutKey)) {
+            clearLocalStorage();
+            return true;
+        }
+
+        // handle logout through URL fragment
+        const hash = window.location.hash.substring(1);
+        if (hash.includes(logoutKey)) {
+            clearLocalStorage();
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * To be called on load: check if we want to try to decrypt and replace the HTML with the decrypted content, and
+     * try to do it if needed.
+     *
+     * @returns {Promise<boolean>} true if we derypted and replaced the whole page, false otherwise
+     */
+    async function decryptOnLoadFromRememberMe() {
+        const { rememberDurationInDays } = staticryptConfig;
+        const { rememberExpirationKey, rememberPassphraseKey } = templateConfig;
+
+        // if we are login out, terminate
+        if (logoutIfNeeded()) {
+            return false;
+        }
+
+        // if there is expiration configured, check if we're not beyond the expiration
+        if (rememberDurationInDays && rememberDurationInDays > 0) {
+            const expiration = localStorage.getItem(rememberExpirationKey),
+                isExpired = expiration && new Date().getTime() > parseInt(expiration);
+
+            if (isExpired) {
+                clearLocalStorage();
+                return false;
+            }
+        }
+
+        const hashedPassword = localStorage.getItem(rememberPassphraseKey);
+
+        if (hashedPassword) {
+            // try to decrypt
+            const isDecryptionSuccessful = await decryptAndReplaceHtml(hashedPassword);
+
+            // if the decryption is unsuccessful the password might be wrong - silently clear the saved data and let
+            // the user fill the password form again
+            if (!isDecryptionSuccessful) {
+                clearLocalStorage();
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    function decryptOnLoadFromUrl() {
+        const passwordKey = "staticrypt_pwd";
+
+        // get the password from the query param
+        const queryParams = new URLSearchParams(window.location.search);
+        const hashedPasswordQuery = queryParams.get(passwordKey);
+
+        // get the password from the url fragment
+        const hashRegexMatch = window.location.hash.substring(1).match(new RegExp(passwordKey + "=(.*)"));
+        const hashedPasswordFragment = hashRegexMatch ? hashRegexMatch[1] : null;
+
+        const hashedPassword = hashedPasswordFragment || hashedPasswordQuery;
+
+        if (hashedPassword) {
+            return decryptAndReplaceHtml(hashedPassword);
+        }
+
+        return false;
+    }
+
+    return exports;
+}
+exports.init = init;
+
+  return exports;
+})());
+            const templateError = "Bad password!",
+                isRememberEnabled = true,
+                staticryptConfig = {"staticryptEncryptedMsgUniqueVariableName":"1be5397e250b2fe3f71ec4f77821c6ea74d0b9dce29d874c37943454c91b30afd6be64da96b4260499ab66a674fa56cd9bcc81e846e6de5e42497eb8b0d3cd3ff35a4c7b644222ac538cdd0421f1e735c7d355a5123a3dccc21cd3051c8e76db3ea4f0880996e11890f856b04ee395394d73eaf4716f95ad4114665dc76bdb7197d39475b4b91a99db8f746bfd8c3d1cc3bda299c39f826b02a787f7a95ca3ed48edf5a182273da915c7ce424296380ae2051011ef7a843c97a5d23f3567c7b2410cfd6d35826f501344fad0d744b21fa8dd52a6d6b9b4506e8e367cb730c562f3ceffa760cad1d88c73d0429713ff1c6618caa00f8a358900543056b5eb780a60e8c00e739aea4a09a830d19d00a75f5c2d9bc97eed9ec05f354059d30a388fedeca14e8b67dcecb903c12504da61caa4dc5859e8c14a6a7575889c0a20c27bc93a3eea0011fb220936655bef5ed349e18c7448c4ab852f217a6d9872329629e2b7f14b8469da1b6219e5c35d393fb955ea7caa036c19b81225aa027ee08b44a35f78f1aedc685c73d299f7f49c9e6293d7041d22a557fcc8df8b89a4b6fe02bd43d859ebb463143a50ac0c785c02beb8a69a674637b3420e44c8e4c631769f9950ff91fcb44c554133f45caaffe168f19796c8cb5d65480c2e90dab5643a731c8a29aa32c72b190c2ab1840152bd4ec1238e8cc57b8e9702f4c301c7c9a0984ffd2d55cd31020d5699269cd6b49cce3f34f91817c56d4d7554215bc353d84dde9a480768bad19f674f88e6c668d2041368885bf4833c2e1dd66e46fc5731c61d67fd86ac964079ff058312bd539c544c25bb5c08ee42fe8a63e8e8f3ac7425f4c66091b00bab5cfa8ac951238f65c25503cdb9789f776f0ccbae5c9a05efa099322151185e95289beff9876b8be956bcbe263e80a0b6260fecceeabae43aaf7dc9166fe4972ddb5621d391e08ccf9ba36915be17f1bd2012b408534f66a969fb9f44b25f4b4cb31140043b0ad3cbb6a2662cf7d359e1c0c36827cb8211934ef992239c5390223da19dc5b8c3d89ea55d793b0b61fd78d8bc751a46da9df2abb9f83c96c8db1527ff427e85de1a88996a27395833becbbc37db9e2a467ea6c812ea32b781f9b57ce3d24951d653de3d279d5ef5409dcae10586754304b764c66263798eebeab362648b8bf2cc0d403b592944406dfca08623eb919f7d8f1f509e3e6840e1a05c0a14d43d6508cbe207444114f3d786cbb17b08bfd43f7ad1624c882ad56b0bdcd2798cdd307d17b99a730350843b46f131b1366989834bb14e832d9739dc060e40a2984ae60568486719142239c5b0c31b9908f3c403d9fc676c373c8d2fa3f683271eb7848db76650a96f87b40774715530c8c13824249468ac16b89453c3f11f60f17221d4ab7e23254cb0af6adef392357bc8178e75487cd01e7d4ef86142c07d3e4abe1760e85aaef519be8666ca10ccd17abcd3f815c1d600fe8ec31bc79cf51bceba4e53fe8278fa2c9b8168e33097d085abf7475a73ac29cb5968d73c5b5f20d8b92be80e1ba6a63367c69609116dd74ae11bbfdb745fe060bcc5becc6f6ac6af39c14ec37a58b444cade32b1cfb8c8b66c97ddde76d39b140a4372a512ca81d1107103393ee2e5ff9bfad5ec5a60af1af831b695be5c2d6135f7a0aa7af011baff59dd0665567566b2dcc09c64d8910a6b40fca5d14282369dfcdc45c7946a78cdf02de2654303391b329ec7d47d8eab1f6871ea05e61b31b7100c82a9d0201d6ff75dcca4324271233596212ed74b48488f75de526f9992e6794568621f4ff6fcb30ab063d758ced6ccff1e2c9ee355cb7e07c3dbd71e628342005da33804e6facc786d1fde5581150e537aee2455d0b93a61556faabfddc1244ab7ce769442d0994f2e0e56c6dd93a3dfa3f5d0a8c5984d7becb7d321143e8b326e0101b524a9bc2cd79c65b9eaf8e8de719456232a2edaca6d2d429b55778e9b72315f4417c1dfe249aaff8b1cf3f86c0ae4905f3d403a96f6f71f0d67f116ecad179abda9df9b7d6d31fc06916d6e2088f18e8eefd4e61d9fd9eaca5c37cca34b9ed6bd87db3eaaaff0f9a84497878a75c78cb7274543178223062749ac7e53919a13ef1f003d07b409cdf4ce8546f4e19690d5719917d8867ce93d615575083d5bd6488746e385eb20f1d5e9e8b13480bf087fdf2217bb163890aebe981afa1795fafb44d2635633fcd187b65f43e9913263c24105a232fd003b02c5618511120dcc40820e80c224fc945bb6cc0aa3881af5b7bdc66a6bc1c692647d6b3c2d04ce4dd971c88ffd81dec71a2c82000e1a93c713e37e034e8adb1bf43af007da43f6e801fbc94479f4c19e39dfed2f3cfcf3d21e203d693e82d49b534ca53a93a323bdd5ed72f0275bfb8e72a0aeba58454d73acdc16981abb8b305975c594cca2ba6451b086a19362a77c3576ec9744a94a71d7dc172ee13d3cd870d1afaa774567d6e1d950c74637a61b83f613978888c8c9a6e54214ab12f206495b15f3a50b7336243140ad1efccaa1a72c5b2fb93981e6028cc91b81200b5c6a7fa2aa6f860de7ca97af0e826b265d36122dd23855e5a81d3b3bf0300560de13c0d63cf65d2b3183db119056b32072d7e381ff2817acfc2eefbd120eca1ea8097b29bd03c7b7c48f41e3a1ec259aca2aba91d599f1e98d155079f221a3751ff07abe2da4b69fe99f87e2b345313021df3f3f7e47d66c9e3ea53be64e8f6c9470c3d10c389c6b4a8d110efc83f2401648f045e062ac04cf553b2bb668b5a40495faf15a560c457eacc9de02c941a0e72c4972739eafef3f029ce7ee21b67d215ad1791e780dee2f1750f6c7da0ae0dfc25ba82cb9578ca83ae773d702b104423f41a6075060d33b4c4c9aa6f9f22f2f7d0683ee0736e10d9cfdb96ff772c5e1bc732ff671e911d065cae78b5cf006d3e52782dea23595cd592f05c2de741e78d361b003e414eea899e49ea8af0f236a5f28ac557eb217b63b3d68ca662c7935f307e15fadc9b40760ce1f22e9d1055553f8eafdc493e475624efd7453f2d1a25baaa3100535199344bab840765b719f12e940fdc3076293a6370e263764564b7c911619c480eebaa0b6b0166dd8866457b9c885c005b85a93fd29a8a4ada9cfc13339f4f02c631013f2416a514afba38e035cf89459f569cb9708d48ef34f623f98e1ea0189fc51deb8b1d1f6735a4f3a3043b87f1be6cfc405eb4718809fa6ae5f0cf3cf5ccfa777bc31cc8b39ae3af824b3e0a9679f309947aca573ded65ad23b4a0d343bee2104448f634b7a58e216d3a18d36d0a808780db3a192f69552025138a05755c89bf93069465e58c04af51d3146f9a0903afe8f2f31c929de87cdd878abe277ce12f017fcf088359106793908272963de0e6ca56a4a780aa6a74fbbcf836afe281122c33406ff3d4c5fd03caec0588003e2702dcfd46531aea9f69876e33cad05e1c12cc915f224a8d01a2c3f266cc24cd842fd123f7441fc9e8b36f46dcb3f4415d4e191a32e66b7e43ef32d5dabb541d2e385cd5fbfb8f1f102bd32269766bf4a1189bef33c6ddec43f64380e466ec67f463bda9de315595360922143e234383a350521f01fd772b5ff59308033c0ea7a9b0c7a27c7454de8360c52240f75c83fb00fbcb9c5f5b23e0843b0e5b08ba29989bde24fdb99e7b3361f217bbd2203e51df987ef84fef6511d75e376b5352e0a1d4d31a2612c4264d57af0dc64c22fc6398465b36cf5b7b269806d9d77fe01e7aa9a0061b05f8f59ccaff18b950fd3adeef629ab20a88c38544820b3928646da38b73930e1caf5c01268e6925b05a6971d68b12f06f1144fde420acd2e1bef04cb136fa8ed1f66dd2e51d24b486e01f3edf60964f366985639bdf2dcabfe132b0e5d20f32c415c28ba79748e888b6ea00038ea51ac830c3986302fd6b33a1fd5c9db98352c8e87686b9f2cc9b479412cd187133f80f8694531fcc8f6387a39253cb00349f6addf1d54f4ec8535adbe32ab62ece46727fd8f713c20a1519b2ca13ff68ae4713a33408f52a428baec6e65e739132a1ec1540f325a0af24096a9a0b12d7f985be77b16e65806c8ebc0de5e8cb2e5e288b3e5eee6acb266c5510e276aebd866af2512ce08327a29034cecde196129f3a4b03ddaeafdd6ea7103d8fb829fb7f946e6dac9191042120af581eb35c7165deb41b866c0b36d181c217a7a4dbc51764fa1d7db7a87223ac3e85e9453e7b505d8e18a8d4483a7c7c3c5f5ccbd5ddc49751b8e33d456ee72c8e19635f4e148500f0b092605cca5ebf793930b237c3b3c4b34810e133f3432aa4d78a97b07aab5ad3d743ef1d9e21ff8b3f26f669cdf9bc19568c8c3edce7a47f7afb6634c4846eb67a8aeb5bf02c93232727a0e4ba297882767a4497d7cd0098cfb211416f245a150f1e3b1a4c2e7b5aa2fd842649e873f61d12d6acb148edc1d490d7ac06dccd5abf03bce0c326e693d333fd253f3f0b42fd067ac02de9dd676930732fb85c29b9dfcb5b0fdad2b26bd68e0b5be3a9d97e159af400082b6361836de1f12f8c174cfb096612b765ab022b66ff2e2b6948fe0f368209b1ddbd468cc7bdbb6d63f5dd1d812e784358b95cb3d89701429abd3007e4e216c7891689a460253e7e0c160b6a29559584a84575a42271ff6241ee54021cd40cf8282a3d1047289a8337db15c747a87d75fc7046b61f1cdfca8261563a08505fe52b5c864010212ca1ac71623cef438e3e9b8fcd553b271de76834fe5def43771c00924b90cf37c80050d7c39e4026e5849fefe41ee4be206f73b709bafc4b988aa606b112658b1d5d5078f1b3cdd4f8446021af283f5627ff50b0ca0e8d00e1335c11660ba8eea74d433fa98d415b17911fd58a9061638e1013f4a8063110c7b453a9528549f28c9352bbf08a2ede5e3ec8041241e42bb4253c9c0dff7ad930956582503ce8f27b4497ad7f530c4d5b0f6a9c946c4869c0a14eee88f056656fc71f8c4360e26725eb84c863e118d47c8e4fd6c6e231a4bbd8452e40dc7ec73cd8769289cefe14c7b40b554d11d525c0a11baebbe5fd18321f4f02fb6d07135d62090f98c0ac5c41e1cd90eabd02a7d522a8aebe7652f0ec156f24aac169648609532b41a016bbb71ff5c9a581c07ea7a04679ab5ca83e08b79c1775bc163a8a8ce6549322c412603e68f0303cacbd14aa227f69ad525c57773f1584cd7207aba0f36c3e6619ed10f453a1db9f71953fee12685f3166a100b097232f6f4bc6bfc704334a9f589414768c6cf456e01444d812431db9ebd21c39dc0bb7a84edf2bd3afff2b51f6f558d0313e23c55d0df8b18ad602c6833b9d6ca17939c6a054b784bb9024d4ca4e9179e5744da29c650fd14578486b39d1b8339c297ec01cb8058a854b2cdfb539be144bcc4631cb24adc00d77fc49110626a0b359bc29dc9e728dd1670d7a7d8639568680cf6e118b5680dbaa7bf7bccf8188f0633debbca3841f041f9e68ac40b6263f6135334c25f0e6cfd2526f11f2c96486a1a959a866aac86e9056686741e85f066ef2468a26a46a7961010ec6f1940c2f7f9bc7765b785fedbfdbec7753e721b00ae3b5c3b33b19248d4f6ef05e6d87d3bc988af5ba7cca10d2d982f44fd1316ba59a46ce991c8fcbf6eed0f98375cf407b541a2e065d4e43fe850556e0dc84892f731944288c81d1e3d2dbb698dff3aaec3a979195db3ef97307a5e25565932757a4ef8b17deed3745aabfa285ea8d036906c9e39d3b4b40f8b55349685f4486d7a6d91f7fb86f53ec19e9c4b7dbb131063dc4d226d32df80a22352aab21266d7720e4f4da85bdccd6ab0ed19a98a07b68d8167c6a70b4ea1d227aefb98f6d32f4a5accd4eae06cb839f789aa7413da0e0edaff39b8a34c112c9dff96396be93cd728acacdafdf6936be12a5d6d9d31747faaee88ca88ea065bf0e9fc005cfe5cdf104588699bdeeacc6f3a791f68d656331457d3311ca3bb3bc576b3b33759a76e43c546261e93e906c100d7345d55693cbee15805b460c12e7e5b4c824b49514f1e3b80d296b9e4e616bf40627d6c40b258112b87e0726e06f4e01b99a0077db411fa3915a8de862fc6fbdc6c7084b4477c87ab471277bfdf4b60fccf988bbaa92df5c1e8bf15652a42972c034c2d4a615267250823effc863e102693ffefeb3ea6a9d13bb3622f90f3abad182616e8a305ebd096dd4c820355f64ba66093e383a52d086ae356a4b2c7a11030218a8f7ff7d7d8f92a897c64fb4e424d15c7bb5f3809f28d87dd0cd494dadfd40236dabc6cdc214b0415faf7cdcb3fdd444db6ac9514565de3f5e039adb9f3f386fd1be2cf327f85d65c0468f11e2291accfbea7476cb27b6cfc59c0512ffb137d7a2d37106a5ffcbc46dc80c1a1756ca526ec83c064b1e2a64aca7f659063c25bc72be1a1109ccd91e5aed09b65302a96ad18a427b46d3a3f7ed6fb43322e4685cbaeafbffe8c1958934ce7a796f9bfc56287f0a64acc0514e0e8516f009840d062687ab8ad5e8f5241173bdd810478a6cf29cea0ace539b0cf96afb8b2b9ae679d15004fe6c8e91b62e765fde36872fe3835e5040ef937ec73f125fcc40aeae4208fdc344b1ac560faa545591c2f189f85268e87e52c61b64613cea018a423cfdf07fa66d9672ced9f62c46a118c76a86e1ed2cbd8ca46b05bd275f8f7e47c97d94e6ea87903092814f99f8a42fe7db2476fb12938cb4da529b0fa7c266a8e27bda7e76d366e8a669f8114a6ef3f4a729721d89a250c3b221eabf4b730c664effc5c62d5c08b91691f40e8516238b1bf0c543630eb4164a59f230b3d7fd43ac53dab6037d37c2d8695f922c6afa08cd86dd82d6df16774ebba14a19b2e7857440d229dc4f9e888c05cfb0f460c891908ea6e8565eac602e45aa440260985bf040f618140f7b740018a0fc0452e9a13973adb43f9e5934e90b7d9547d850fc7617fa4d6c7d321af136c4f98d9656776f13a68ef677e349c32bfe3feb4ef84aee8367672f321c7d7263c95902b3693f4c9053cf8a16f13a1e5222608c402a7b62d9986e09f0020e63e1e5c4df7bef5a92297d1bb67f262bc959da93cd81936cbc01337fb927b5fd4a583a6782f5a56ae72bb0b3f4c4a0f832bf136380114e594f8d0d542f164324ff38fc1885530e05f2e715df280342c03c0a21d8612d230b089db6cf7abee97b2ec1a719753be05edc04dcba5f7a4b6d4a2c3875850fa5852ddb639e782b7da7d6f513ebb8795e8a50c9974acacc1b1ffa75517d5ab7c06680aa2ee3ca0f3c7bed591603cfc3467f0d9005c3b7eb7cd82b9de5ff7d2792439311b9784f56c247d539ccd9433e225b5728733ff85db78b25d5bf7e5bd74725ab9ac5a53741c61c287ae8d92e507f7b1ca681c6bcc390247ce24a968e313001127a54f4951522d4935341909c3a479b868dd781c7a6386575afd2879bff6e02d071208f0e3ddfe61eede0a21efdafc8cfb142b3e32f5e314973bec0e003a753ce128826708fffdb537b6ed45501d829011a47240e06c6b640e86ba1c91dbc6f5d6bdb901bf30d52ee9bd65bbe3f761785935d2114baeb52c705d97276a410d2d3a0cdb71dbed6fd484deae214582ab5cde38c577483eadb833e52d4732a107b2fabde916189f4d71c057a2290fbe7bcce6da9a7fb5efd376349dcdef33ca51629409c72bbcdfb8d8a947cc3c64d6ab03888a20fb87502db2c6f6be23135f315bf585511ab605ea3fada3535ac7ea5f53b45fc5c6469b78291ec09752847498e6455e59d85a851748fcacca5ceaa4f3def95f4c7582f3dffca8a84f54065c0e56369171cd6b2134b718e134d9f7ab647be70b5c7821ec15b1383458c34c3250e9646009abcf7bec5e83ddc4d671c8a99d5c7a6e54b6aada232c816ec820aa551812deaf8f672e65c78cc5a17db17b66e4132201056aaa85bce92c0d7d1792b40374f987b21de723c22abfd01e0df380d6011b2246504ebe7cea43ae7ea428d08ddceb94a16685ac4ff6e3d1fc31d2a877592cfcc01fa3e276740b3e586e49a277ff3a54633938ad762013c12e9c9d782a8f978741e6551803cf7c1588f7f8bd8bbcb27d2733c30f12546361d9b8291ee7485d52da6a3f6cfb2aed2fa3be549d1b1a5e2f764417b22dff0a0d9267bf0511947f1133002f18c831b2304e0b989c1b3f5e368c8036a90e8054aa129e0995034e1210d4320091b67ac0b270217360109c6607a622433e3049def3836c63748340f2a0e6ab47a1ad26d7f6f0f9036ccaa24ea823071979a0790a4c5f048dda1874b0fefebc895dd2655aee470e97cd65c0d3685b86575d426b766d8a0d8d68e7fa044a9b31c98230fa147f187d3046bbfb6aeb5687252e84b5a9f0da2f901132dbd053d491d87d3580da7656d114dda4ae162cf6342dce46f9bdb6b5eecc962dd8840f3db3d5dc9314ccb3ab3af07f3de43d071b76d11c43595b8a18071098d7725d4ae3f939706da3845ae7d1aa53c6bf593a767b6b19b0a8b84e86000277b305cbfb420938e66064993a052121a208dfe8b36acd83a0f81050c5e5a9d5f3a02334effbbb8f0cb06448349ec669d5140bd4e24153d15c865f17a869660c09274bc766a7f9d1d106469d4cf5caa41c4140efd960930e028ca3f8eaf824fac8eb45d0a523b3659a10898c6b5df9e155bdb8cbf299876533772ce34a5b7ebd5aa9a07daf0bf4ee562ff2867f703ed4dc66a3dbae611dc7059a8292fb7d991741d3f26f42884e2a039b2faed991b008434f399d376dbe89e9b34031905b15252cef0e1fbc43ebe551c3c57859e44db27f65c88d166b249ddb1236f83e2bdcb0cee56128f7a845a65b1f7f597ae25cb0f4449b4b99ad4cdff33882e4715aa484fbe81ddf3dce72326b1b1e7090dd58a89e07e319fe754721ef45fc0f5f2b03d292ddc74e372e64a9d256fefbbebed4166bfc910c93b24700062377bd37e84f320d956eb9c38d84c96e9bade5dde59db804da5273daefc9444a4519e913523079cd4dff44b615360001672fba5139e2c9e1fe685ff46d5321ffbbf2ab5f6e64acffc1cf9f2903c7257cd8bc2a3e307f091bad96fa572ffa315ec5165ed73970d633baf879ab109d5a33ab554e3762d83586adf5d724efff78d8481d88f5c17b71e33bd53ea38f75b335f6e6c03ed9a1b0583f5a11ea8bb3df2ebc00832f4a708e94616a49d3abbd9e9a46d875906f4f56012ef30a65211313747e6efa0f07a8d11f837b55e9938748dba763431605ae25204f03562d3bbc20cd62732092dececa752cb91b8e475825a68196d82789659b348b15b1b463d227fa90da274cbcb1e44a845e5daaf9301edda7a6d8436a24c365878af93c4ad1bbd8a2f7d9f3b3d75f7b4c2d39bdeee6c5ca9fb3ef4664a4c20b064d73420ed63d5fd11d3a6770421c5a868827f7eebf3c281851efa3356db3d0a98fa1d2e41af33e38cf5c1fa310217f9a89ec88c7e6112f8911d3d66a6eb209501cecbc2c1f429f2354d97d594fc152af3ddf71e779a25d584c6db14447c96394c203cf1ef083f4bc990f6dfd7e6d823746e6d1f8435be41577df706ca7dce78d1972403cdeeef6f807f3e456ed2b236f35e0eab6a8ee13d47329874f162dc3a5f314fef6648d0e8d3a14809ccc13e4b384aa084a77b44451a3eabf474a8ba09179641a90d10f5e0314c4a08b819a58acaab403e50bafca96e5cd8ebf5819c129abf8224d6bfb0934e79b28aef766079ac95dd4a7565f6bf7d2a94a657d2c3207c4efdde9430b0078092f88b162a871db74123da1e18536d91463d5857bf03f07138e6ed7f72b9d7dd12af4b6834523c911f4c0165dc56a3c0e5db873e41e2d9fa66f67bf37d49cd40054faaba20c905d53a44a9a0df94428330f309d86332322c8301d6ca761bd9dc6c53d83436e934137d68bea197de1654e0ef96b8b1f726414473e0eb00b750784685c6e2a3beeebc7edfd27d4133576c4340bda370c8fdbfe5c1d3cfb84f25a2f7c3b5f3f0f9490c14be00266a0fc783e3ea2e7c2f0109f839a417e2690cb09c4d639dfba881f5b5f1d27260e6d6127c6a697c5e50eec2d92fc7344f0be69833414cb4bf2adfee3c6591c77b824d4ec26fde8d3137eabd6102159fd4adffe07a3f8841b5c0822ea880d3b0324ffb5fcd165376a8a5ee037925bcd0cabb7cb794ece40b8fe7b9e93a24054865f3563b347994a0586660b94928ecbdbf5e9cc8b968297bce07f991aaa7ab302f45efb4f9c7d8ddac6e36da3eb3a783fec291d64f5f0d881d69e425a12335fbbe22439438ad4c8996344f05d30fc93c7b936be500b131a1699f84d6420084976af878e8e70b7e1e8db36b1c542fa15deb75f83b6bb02d2de6ff038c202d14e275897b8072dd3a5407e53409ff5c0d1a4d52161c7678ec9d3480e386915cf252f9005d684e363237a97f98f2b81381509fae81dd0027ccbeb5ff77bca6e5341135084e3492d26e1de714b8b3c912a1a252f910fc28873b2696ddbc5e49909fcc2dfbc239e8c81fba014bf2cb561cd5a488ca4d095a60f38fffaa8c1f1fd624642d1697915438e5f03845d5ca9fdd40556ca2e784b6fdf5903e57783c4dd5dba2b7e0e3030486c83ecc98c46f5ef36d8ea2f79907288c601829fc42ea54e5dade273dbdfd48e911d0c1c8fae115026eb1cfacfad734c7ec02fa28ad1828aac82f14abd39be567b700d52c21de3cc4c9a25279924cc9c4c08f5d1ed1f9edfd0c4e01317ad730be972c147fc3a50c114a8f434a34449d9d11cb478a9f7d1c0223170c57fb5e145fcd61421d5181e211111c66183385016d554f09cb53c572287ac53787611a6de98cc94ae8718eba5a5d9a33c64e5aa0c9d40d13e6e2774a7adb64dadc55987313900778b3f5e5036e4333f7832627b26b657b79de42822f2ead68518496ccdf86546269e45fbaa49ae3d8d32b0be994d31a1dd71910f7d087d9d08103875b8f32af68edc5d5c4b3270b1690f186ca0cbad119da746ebcdd820b17383597e703e2140a6c88de791b3ff62b2ba402a38485458d00c7feec7bf91b129bd1fae95837e9f6111b90ab311190b6996332abef53b9642b6537e5ef05373a998439a263e41043525acdc80bc0ba6ec3f54957daa85bcd3d87c9fa370dae96969659da3984664335588bcc3d616b04673086b5a50b62ebf9deae60196b503766b2c711d9b5a78bbd8cd8282a72591e8471e1a1ea3a8afea1940cda6992e2ba10f9359da7bd41ec3aa76a7d6ee1179b619e7eef64339bd30423aee162699a42c661bf11f9fee50584da24077ed7f62dc3ec0e4baa337d2f1aa89a0c7be52255573a9246bd77e88e8c63ad4da3b470a9064788223b30355d5cab99df3ecb561cc205b221a5113a226b61df6a373cf8adaf8e5808db148e1297ed4d5b51d8c8043a812acf8cd7f5d7a7c4a7b288f8799ba49a1d700fd16f9ef16b8aa80709672c3f7a96657d092dc1f6d399a63ab0c1a5273233698e1789c8a9e3750418bc5d8b15dcc85052db97ff3184d8d6ce8f9a96eee2f5a79e8a5141eb9ec08c5b5cae21e2049dc845e78d6d88f3117fbcaf556c8724275a1d05184115e645483a7cf99adb3091cde5de143cb254022acc2430d7c742675d82fc315c876aa70a533711a8b4c68ec040de817d12946ec10462b5aa83e27bfb9eecbf635568a2c68907fe47c31b11b8d59983a69befa10e14e29b02e049654a0a7d3bcbc45e47c8736150aa45c14344f1074c6848cf794f3e5525795881564f67b68326d7d31248c0548fed4462441a2aeeed88ba85d68b7be000115a9504a89868ac309c1f7738814a89b8281eb1746f196857161de4eeda280d63ee910a8b3e10e53468abd57e6b73aa36b6d57292eab8f5a7cfa5a26f765403b53a459c9ef4d14625b6d37b4827a107f76cc253767395fd8a557eca47e7a29f5f8b90526bb838d81e0801a66b29707d4b663b605b2af1770738258ab63668fe5a92a4a63f1aa1eabeb67610fdce101f7bc8ef3dc122854bf7d2d86d4c3a6b8b3169af9fc64cc02706a3c2bf6ae37a9fe84bd6e895d3db09d2ff74c0ed82093201ec191f48479da7795476be20b971597b692f846448318e3cff7e984fbecce198f32a177e53521a581a05ae68f8a1f7155eae23c8e15746db9637f61a7414566623ba88b34a3085f6f1e4a93cf2198ad67e320a7ca9099c756d73e8f45db43ab108d3ad9817f5f4e93e94db6b7ad78526b2719c5332a5af24ccbe51a86e2853f1d4312ce90d48086cae94dbc7610ebed2942c07d6bbfc64cc584fe6b0296acf4bf1bb5ed151a6bf2ce3f01aea95b6f831fe6aefc710c09a4372007852d057001301ac3894b8466ef3f43ad9ed28b4d340aea280c68300d019df39ca46af08826100cf069ac6783244d9250c0f7fc20bbf958170188f5b5719932c2d082dae7bb5c162af11c2f7cc9d39ba6fb25e91aab60fbc459b57e496c51e9daea3f67bf06e4998d8853f31b174050468c675cd408b0144c3077b84120434925960ab04ab88e5463030347f9645476f97a5421d8da7cbc0e3cd1477685eaadea391ee45067b20fc8e53b574c79345976da1c186f1673f64fb3d232ff4c246ed09e7c8bf641fabe65a38f2573465386709b0c8665c2242a85d978e3bc0ef4cd3c7805ba86140d6b5bcc54ba9cd57f6f0c7ffc9c74413dc19bfec7db569850dc45c8ad2a25ba3ed5ca9c6a52023ccaa93e66bd0d58b9d30de3aeab5402ad6e6dedcfa61e2a31f9f5ffb7976200039978be60f2cbef92cfbcc75eae36b8ccf406c164bc1d210a457955bc8b659744d83231f107814a23da91284aed2428f27fb674d28e1a21463f57ca9f251f8211840db340c2d79eaa40d2b6491c8187dc6fb60428338ccaddf04171e2ca36da3a82e794407ea0d7ef5dcd18650711ba6c71244f2d230a01483a7012701406f44f3bd3e7e9a8c203c34b3d8e013d5f4582480227dc2643775048a96133a938fa470539b39976a28e985bf4593992a9214d5f542393ae3cb87aa0d07ccfaec788d82e6b50681c0b58a2df26806b97631824d566696c7fb5523a2d2262f7fa4c5e35ccb4cddc6cfa540aaeb41ba16c532653cfe5d5ae4d04bbade6c0c5d14d25acdfec00f699d6020594f388727a19ab82c204613bc034d8f56bab3d6c5fe7911558214ee1d62980086d9f88413ea3268970c035821b208c7d3a74d1077a0ed2cc6b4e614de75a1a54946acf3d18604a4195788d69faa99fae410580db97e4487c723059ef67d6a74028a102ecf97af0784113f261d9d733f55dec9eef1dba4c21ce1a4ba4b3ad6e53f10f32362f1669cddabe2dcd0376b34221fc6baa757d4b70f809b283d6fd1b2cee11c41174ea557f74ca3deec1010fc8e5f96640583369507bb84efcde57e8f81147a6cb7b83b39778c8f817ea52851e82b0cedc6b1e81c4a3929d6ca056467c650c085eb529a2a73109e8d6ea342ae8615ffc2ed3444aaeaf5d2d3cb633fcbda7a3637646fe2ad4075a90e2f2074332a115e6fb69ccc840802e0c5b73f041890f6edb6d278879f30b7c95252e8eff9bc5faae20cccb567943df11d4f9774b7559467838702cabc1f60be2c0ae0770330644d1c958b4c8c2835fc2dd88200b743fe0ee00c9e066706971c47d2e6b2b4c2c3f031499875999691ba47c368ff90aaf0cd908bddc2c9b60a9d669d98052ba64f0dbac3718792fd7a296d1521151152a3cb651178b6637d8eb8cd521b72022023ff993abc579a2ca2641c6e03a3d82f87d77d92e8cb871b161d7316a6185ca34e911c82b4b7e1385e4c0d3d66cc6de59542e02131ba42bc94c99607f5ed2ddc55ea0bbb7f558765caa4ad0d1c98ce45f2c18549d7663df9c36e692257ced8842b612cf5fd9f808ab4292c7c68f4e76725f571b207a4c38518b0ac32a89180fdf4cf15c3bc0e8f7356f4938614cce2cf46ffb3d60e711c6f538ab7eb2b87c7c91661ae7201027e2913b46111c74260b7fb5124230dced9e76a700cc6ad85e8fcae8f7ae3266a88f522597c8eef6bb908a6cc198e3c1cf5df10fcf1dce5a93f5c292069e4917bbe0055002659fb3684f7d7dcba331da86bbcc51d495106fbf734a1b5002e865d669edef577b0f06bdd2c0f88ac2c7c32f55e0a98c98458e5fba6486632971fa32a21dfcc4660d518e7e00662a0aac3bb082bb7de0e1cfeffb58e07dca5c8030f30c3fb1f2878e7021722bd57a609d8b1147ac6bc6ce9a038bc81f17cae0a54d470c3c46a43e754e07df4fc58ecf044579591fd9add653870e91a2b02d6e8112fd05bc3bea9acf622d37a76b79c31ba03ca0e1fc741b104c6b4dedac8684353a62d80bef5c09830135710ca8119a5a80b78e8a89b42e46eaa7722fa3ab119cd7174ca3b4a48642b2901b634cb9f9aeb505e2a0c2c1060ecba01392bcc7c33f5a8a2421a35acbec72be9df45efd0df346c45a64a4e5af523b5dc43903b11368e950d3e83914364f9718bc2d2e76086ed364d0288051f5dd0d9e9ec7e9cf36cff9170b015d1e1b864823940b1d5d513d6a8dbd0274d32edd9e60aa536988c34b2506bb13586139c4cc938f68072644a4a607853dec8507fc10771a1d2e53be0f76e3ff318ece324c8a3ca6ed726324fc6947bf4fec8d6849342da8eac511a90973081a1a38480015a949be60c7fd3914d94ab9837b64885a9ab3bf3804145a53b3ca76782742fb819580184d64f3df926274fb42b14e7e06bf814b6c5ad48ae5766c0eb6167628a7ef5b46ecea826373b6dbb10f39a4ed989089c9c2ea12f94e7d5f9532d7d0680d98a97bcd113b613bae588f7c45a8d72ba0001fa569fcc32c3f6d0a63010968cb99d6d83b17d40f2880c8110e816e83e4c9fc8fc910eeefe9f655b44a4f3ecaf4fe7b4c429f8713e8f545e786f2298a2b9ffca09247f7ba1cf483927d03c65ecb9b0323f487c3e6e5665b6357ab71d59b4a5a794371f2c68d21e0257f8562ccfc85f4affbcef069deefc710060b4f574c787e541579a16e3a78f024c5bc6cdc652e27ba4d35dce89a48a5dd44f3234ba6611a8a09c6e8f633803158930e867875fd64fe20198aad63c3def3b29212a3df3f877b20b9605bddca1a1966e66644c84a7647f3aba16530b9ac381ace10ce7fe0e15dc39f63621448e91df747752d695ffecd0d3268916099b6bb82341cab53de0df8c592254936ad738b9b24f9641c512a36c607010a3e99e02609cd5492abe71ec656161c56f03005f7bef7148fe85e9d19a0352502438e59c2867e7781d2f93ca606aed515f9cb7a959fcd725a3d7c17523c074076d6ea4d18d33d0711579d79a60e63f0edef5d33674cc3af3247754d800dd48a49b920f8f4a99b5b96bf7db0aa339a4a35ada5782e78f77102c209e880ca303bed81ab7c3e5b16d0b8d67474fc40535cba735d8ee93d125a10f647081fb87a1d93401b2b0e15b1246e31f6838ea64871488f460c8a80a3338b9ec919cfcd7b88bfdd46065e3469d4bf3ee7fefad7d432bfa33c1e5dbff9f17d5a4d8f09aedb59cbaf128dd946c3ee098e4d7098074dd0d09f06b20201beccb409f6ac04754a0abf43f729afa1c75766ef4e03d975627d8e04687211ea73ea336be9435ffaa132a2a174df6b0469d791c02da1026a139a254b35e761838078a24097a527badb158e747a4a968b347c68927b6dea92b337d13c2674bc9d4815abf17667b0ff6ea90997936fe96954bd0a3689bf31b34991b9f3bf4c9803ec87c66544c013971d76d41e18144c93c91193b93235781ea6d044c6a9afefd92b269311ae02fb0b551237bfbbfd210a7e9d9be08e16006b86e8636aeda2ec2d1ed0efd9f297a5be6f4913dea725e4b47ce79eced1b5acf6cb271518c0dee5637d026c9852ac4e835476074136982058b99c6bcac50b98cf6d1886682c4835a823d1d95f0c8c620ff14748077838da751a41c18f58aa3d47d45b4b01a4ff2f9c3e5f1a9f6308c05429f7e326cadf4bd1235299ca349ccc5dd469c7b753eb031076842e0089aa80ccf5267e958aa1d3dbe8d0638003d1e563c5f1f60ebc23aafe1e2fa2087f44899f324d852869648a4d33cd00088d23c647fd4ec8f650be2d0e8575a833883f9b6b35864cae3432b96da4cb60652a82b8e33f7b3c6fb391a7e94ef650040f962e54dc90eb8fe2619ad6d05ac7972de9494791ddb7a719c3a9a3b1afe2baae3385b773542af37790c6e48d7e79f6f730aa90bb11202da93e408e570945994193ecb4f31969d1bac1dc37ad5ab4d0c874c2387128b4f2ab39c125b1b574ae66d122546e3a7cc9740602a9a798ca3358db19d9dc544083f9524f2991d791d6ff63d4b5681560cd908da543e4533ac4b983ea3e6dff9e838d0c3101e90bc33175c8d3b4e0b22ea50b38cd67f5cb052d7c175c3ade01032f1d346ee2ef967c2d84a55b074ca052b1c8b9c2a865454ecbbd4e9788031092907cbccee1d0e62ce44211e14dd54ad9adeac97294e506c87271daf545f14936fc5da3d78d55a6eb6dbad09fda346f2ac90daac03806eb4c47a9bd3c558ee1049faf3e1810c4965819d4ebcb9e3249debabd7795c4646bc09d729900a5630cd3daeb1eba6180d61e898618d7134eac12024965c692c4ec698105d0cfecf6f785031bd63c93065c10bdc8e086cc5af34d93e869b37f290800ed84030fc4e1b39518d6a228638cd65fad102bda1c9ddd49490624fdc357ef46ae46533968774662edfb57e244889ade0eee92c2377b6b278297a959897ea96e28508d00652c6bf0a833ab246e07ee240752add1393aeb5ec7f83b640f3e333cea8f766574baf2f36fd44e23e8c63fb3f33693918f07b5ab4dc8e66efd5764cc7b366dbfc8df74ca85052eff44ebe35f9ff9ed884ad7916a6b97e969182296eae5d93d65b2a928132fec0bbb72a75732b825a8457115fed9a79bc516e760ec7c59d4d75ab789b5f031da36a55fd3755e6325f5a970519819294786161b8073e3ccac68111113cfa8d49e09008f775469fc128ea6d4ec278976245974887f9a1a01860b84aba3614d0db3f8f066081216f2228f373c6dcb70201212766b00f17d985226115a46d33c2a8ecc893fd1655bb9bcef607964d5e2d1ecdfb71eee66c4141e9fc42b4994153423e8ba23845ac95318492b29b877c50f9437dd43f623de5c59ff5102f4f26916b9b2c3e9932870abb5d4bed2edabdb5c0af1e7e22b833658472c275056e06f3f6713229385f4a4dc96681ca52b8c8680c99319863684163ff3869d8f7ee07c620c4b6cb0684c2b00c02af56986ec60a6e73c74f4a5c10dd160828a79feaefb51268f6701837c9efc2644fd9a8f0355742ebe62680dc1c7a2b38ae743512099266fc690fbd9a2231b06b1bf60c758b5218fc7171dedaf8eb8c0825f0e98b05b1abf94a485c081b17cd98d0f528654b360f9ef77cc1b3da8337619d6c2be79d62c697e0a648e82d87d18c5ad29477d7a9fc534564c7c8e2ecb5301b9ec2530a52659e30de3709ee8dfd9ce2e8285149316a44a25a93a4c96d70e5e55cdbadd978caee7a174c00502f117cd2dad0e5dc2b753b976272fc07514eed3bc2a495a978d21dfd3bc8b24e04603c6204f873cb623ed1e995d69a06f6b5a993352cc92e214e91451ed052a9c6ec633dd520fd776500715b856a0b240ccee8ed572fda415f40f5ab3e77aec14b0f38ebc8e48badbbf02cdd295df8631846d63462efb08c6847e830dfdeb353e63ba834725f8c86f24a344aa0b899de3985d45054ac9d407fa3abfecb60b4236fc41503a5c87bbd0ea9e35b6f407a95e74b50379891d9e8bc38a8a44dc18537a74c5b50729f724569434195148ba3a3db7a6976bc2ea06f6ffdcf3795ec30cdaa530774f957e19c1b419c0845223654ccef84a64b0d378b38a269e68105fd7a451c99ba85e6a38429b31535098f05825a47520ca411bff7ad051d8bf68735a6220d7ca53a9145796e1c4454ce24d35ab3804f0095e6dfa0dfd9943047e36307cc6efaa828296ab1e51e4153715b1e7a8f75297b6e00fa270bb430f43a02f374e84cd5a772deb4740581b377bb24326f89be55b5115ed01b37e7b691840adc63eaf55574771e5a496f55bc8f9fd3ba8d61fead5397c75fed416d763b0707003b46653d0c2d63ae98c5036e4bf5a34cbade74e821663bc50304306c185d9302aae9c805c8252186763c6fdabe1be3f9fa2746dcc0dc4f2926ba72b641ebf2237f03aec318cd760b8da5c95496bf900a31ea240efb496d18c9c70abe52efd93dbd2858ce47a00e002df1543a42bcf8df859f79e6660b5591a8ddef4affc803f4b92699a87223947d187c8450bee6ad8200325bf4b52a31c10dde8ccb1d577ebb5cffbbb4259ddf99bb26109d1db67651ec2ccdcd8cb2b9412e69e52cea9b562d2de417589ca49cdc88cd259c199ba6c9044a747cee5dad1e906289f8d80db436fce14010fafecfd9f46cb8a4d747bb60c53ebbd274855ddea2e32e24a06805cf224e64b5c32f5a526e3b05777f5a4dc71f8d99040e35384f9957caae81da52f1c45add6682689e6829d346b75cc44b4e584aa17ed67dd2f7963e2405db336e1e28394184faf883fae31313717dac51763424e96a1f729ce68f989ecddb1125a460c8b898bce06c7a087179b48048fe017381c9d28924d8abc391bd80b339a31d1369316fd10599dd4062eeda41b676d33d70ad6fe1c65e956067df4b7931bbf92901e86d16d2961a6b18c4a39796284537965ca5b69665293636f44a3ad44595f1148fcb0870e65e2cc0cb4f1eea157d5478ce76e549b9b1adcfaca41a77234a47c314f4a71c7c8bb8389c343d79e21fc6c2992aaf3bb4fc9d4a078745c03ea9fef5f7db607e14897515e8f505ff1f23b8f7c51bface958aa60d1b0fabca97eb06ef655e38c9c015e4c54a2a7ec87d6b113d562af969a36daaf57bc756a2967a69b001e3e7d44bba245d3ffa4b1b9eda83e754c5d604ead192d755f4a7cefe22d25827248d3206816f1ecf1903b37cce3ca6afdea59b6f275cbfada36c328ab55d37fab82e1bc4448bfbaee6c16ae3c3ba629c31209d0145ddc17773120bd890823ba04f55a298ad61ded774a92b680207436d09da603ea77aea22d99557a99c4974d24306b9aa6d21b59344ff43383d22833357d29114b01c3f3e127f12e1598e66f1a3828c2fefa9c765e6af087dbdaa2adf8c3244deef17a6c4818152a320ed09beed7e13d036c81f0bfdde8968292eecdefba2a912feff1b3d71b9b52fc26cbf93ce8850943c17b59135b18ab7bb799daa8faf6cca9912d99acb3b2ea77a657c19210bbbfa22455ef0af3407ed2cb4e7b98346fff0a8e7475074db8dca3b199f69010e91b730c6d39d35160e315b91025e2e83fec79a7c208f00b77d0512dffb6e636a10894fc9db5c78d65acb689255e37c07d942cfc4a9f6bef35c7285894211d04c1c3400af097a9137e4569f0852e2318f363f457f7bca764522ffcdafd288b6b350602e0a72286f1a4cc4420ae699829c9081fbe0e3ad2241b1f1af5bf98b4f384ca95a12ffe5b85dfd913c8dc17be7def9f06f828e5a864cbab12fb2918b08abeeff3295f5df372b6c5f21264492925a167f19a86867d194509aaf4a7a10c90727016f5394b801218740bc88d26897199b1e65202c9156bc6cf59fad4e8d8cf148044734813b2961a60982073a73e486fc30a555bf6aa5a19922c1411834a49414de23e609b63b238ec3e5585cefb383d5e188b6b176f0163972398cf6cbc7b7d2d06b069198c7e703d4af1f30e1f50444f3b4caa91f012169a042dce61e60cf3d6225bae91e82bc83b63d39c44ab87147f9f77b3209f4c14e831761738ba74652b0f8c617c64f0bb0e430f3d7ddd2d04438c0a3b7b55427dab48f25aa945038b5f14f8f3c7f21b34ec0cf89dd14f8f83b316d74992fda8def0d19241321f9c158f756689c71496f187dc0cec64f14e6a9963a952ae85d0038f10017f6e9fda2b7c5885101a0c8ef69246fdc5842d603d14a5d900f8bc8049272eb7f0062791c4d99e2ed86bbedf913c0ca26ba1c7cfbcc2b8f1df812a324f12413e6f0378c86484b1cd15b8885716a42bf44079113baae36c018414e68709abc971212cbc473f8991229d65e4c895d7b7c1f52fd15e9c2a450043029570f234723d1f057a76b137c580026c9afb44c4fed089a0c43d38316cd52076bc6b8b1399aff4fddf1fbfa1202cb703c827c7bfb014bff6e83894840c64ce3df8b97e8653a0f2fb2ad2ff14985e929056fd7e2df90478d124776374b3affb1e2f7b476063e734fa70f36a1b29ca2d7f5be5d4d083eec42361cf478a99d2d6b664ece0dde8896ca3d84bbb9a36fb5148b511da51474cceeac0f0a5991efe3d89ad2892bbaf6124e59d2f3a6eb60e5b48315bf0830a965a72b73da230ae6c3f87f8e41f2b55063fdb103d241ad9aef4ee6840b8300a0d6edc7f31178d3c92e8676747b1290ada13e1daad9bc35f56df147cfa3f95e1bfb4baeef15bd10eeca7b0cc3be366ce8d724595ad9b1fcb3f35b47aa01e7b34d4a2aa1c24e868d20dffecb971b250285e1e9be8ae85735afd4eb9b2de6997222a0003241ec5b138794105cc9dfe6fdd419cec99187658995cd21839daaf65e07e43066ec4601b6eac0ba00ade32ea49e1fb0802a46954387b9d952a7f04eba7b632c9a311910fe0838fc7d666357c3c678d2d391697b79762a61fdd4a3abf62cc18388026e2db4e1b20bdc2cd05f0c4b666880fd9f5dbdef2200472ef14c23a8ac16319380e4679e96299339b4c3d8d3c5457d135636a141a03a0434c8a37d033725965479532035730bcc6d45e2e91fee9eaeb951230a312ce60cbc452215750fed219e7d5309566b915f5cd9181f643408ed5b25c9d96680d99ddcac753a379d10e5b8c2a33119c1fc4feff2d704bcef559e4923a0c29bf181777279e606b2a391d9786588de651dcb11c47f54aa942f7241c7d65937f5bfc716afe7c7b1b2841a63b704039d7df4cf2e3416c95f0459a77f61e64d9de0e2ba36db49b441b7bbe984d86538bc011619609b1ef9b469fa75b2257702bb5ac1e33503a5c72d216e89d7953e8f9ea48ebb2a425a25372a70035475330e9082ade02a71618560acb8bc8e551b328174d8e6d487e9425b7c8381efffdd9940b76b1e96a805029067fab6d9b12fdf31209d813631d9f81eae3e36298f6496c177a7dca07516d71d763e7ef8f579d26ce956f2e44ac0a7d78475654a2d0123b808146496dd35f3f1263e40057b49b5f998bb29e3a7b9cb576f1ed7109916380d3157170b9fc0fa34000434b541432d734987ec89a21bbd9a75ec12cf76a2a76c0c265f26e409efd038c31a67241d2ba85cf75987dd9c684236eb3572c63510a93058fd00239a03d3661a1417bc32a6989d9d4cc4bffee3ee950218fd9fd885df1ac4b00de06426d3aba385a159d7dbb70044305bfa879663f2b3555eca98e07ef679c8f0fd329c4f047b935c59d2dd4d3b8f34decbec1f183d20809a7f18ca4c83775c3c9c87c84de1e3c1ac6cdda6cc204930098483f35eed977fb6b8aa947c65e05ac226387790307cbdb7cff8055f9d6b97ab94c27e42625b07029a2e175e5fe8a75df2b5df1744cbc1d559bc566042b7fc8ab713b40e2bf33fc0729e08bd15e462cb53e345252752e7fb25cc17d505a616c2268242bc588bd8faae0cccd7f055599e70540a3a9baec5fab7251b7d2589b664c5409d92a698d6c75db98cbae34b7bdd5b9de4898046d81d0cbc5aeb081d86c66c0a0cc7733dff643d7042e74ab86282b9c612086c6396dfdcb2126ca1a952e447ea81694566296d84e3e25658ef16d930218cf1cb20c55216077a761e9fafefe19fd5edf30e790981ee334ee5f01ba2b90c3af58aca19eda423afdabea9f578aea3372870db90546134514e8fccad6d02acf2682f5435bc4b413a8468686428c594951260c71bfebac5d51fe66f924400bb7a5b1af92126bffea5ba53dab6def83a99988a1ab17298e3bb83003b19336105f9cce7c3fc59be4adc825609d494dac0eedd3ffe9368d18b846d998e47a6006636cbc701ea0da70c9ee8b880e773faa3e04c65ef3bfb5e0435280ca9bfd30707e36467828ee855ca0387608e0d5561755d3cac5ab25bd6794359aa00b96b13aaf0e8c9ed220cb11e7c702868c16a14d1c8a596729696becd45076957ad33c124731a3a6c6a6c87835de54aea100011ca2a3905d06edaa121a71acda07c25a231f6c44c0863d116ecab46d556cb9e5f7429791962f5401e30090f14a023033af3cc0a9da05ac86e76fb85f9ff80a33137924c830d75f4effcab0bf1923360f5368f669df18f8794676bc9be784","isRememberEnabled":true,"rememberDurationInDays":0,"staticryptSaltUniqueVariableName":"1492af14d2b0548a34123fb51c1b0faa"};
+
+            // you can edit these values to customize some of the behavior of StatiCrypt
+            const templateConfig = {
+                rememberExpirationKey: "staticrypt_expiration",
+                rememberPassphraseKey: "staticrypt_passphrase",
+                replaceHtmlCallback: null,
+                clearLocalStorageCallback: null,
+            };
+
+            // init the staticrypt engine
+            const staticrypt = staticryptInitiator.init(staticryptConfig, templateConfig);
+
+            // try to automatically decrypt on load if there is a saved password
+            window.onload = async function () {
+                const { isSuccessful } = await staticrypt.handleDecryptOnLoad();
+
+                // if we didn't decrypt anything on load, show the password prompt. Otherwise the content has already been
+                // replaced, no need to do anything
+                if (!isSuccessful) {
+                    // hide loading screen
+                    document.getElementById("staticrypt_loading").classList.add("hidden");
+                    document.getElementById("staticrypt_content").classList.remove("hidden");
+                    document.getElementById("staticrypt-password").focus();
+
+                    // show the remember me checkbox
+                    if (isRememberEnabled) {
+                        document.getElementById("staticrypt-remember-label").classList.remove("hidden");
+                    }
+                }
+            };
+
+            // handle password form submission
+            document.getElementById("staticrypt-form").addEventListener("submit", async function (e) {
+                e.preventDefault();
+
+                const password = document.getElementById("staticrypt-password").value,
+                    isRememberChecked = document.getElementById("staticrypt-remember").checked;
+
+                const { isSuccessful } = await staticrypt.handleDecryptionOfPage(password, isRememberChecked);
+
+                if (!isSuccessful) {
+                    alert(templateError);
+                }
+            });
+        </script>
+    </body>
+</html>
